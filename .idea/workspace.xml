@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e43833ce-c5de-4386-a1d7-0765daa935e8" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/GUI.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/resource_images.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Pillow-test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +44,7 @@
     "Python.GUI.executor": "Run",
     "Python.Pillow-test.executor": "Run",
     "Python.main.executor": "Run",
+    "Python.resource_images.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
