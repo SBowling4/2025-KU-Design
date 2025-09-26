@@ -1,6 +1,3 @@
-from frontend import GUI
+from app_controller import AppController
 
-app = GUI.App("azure", "dark")
-
-def get_app():
-    return app
+controller = AppController()

@@ -1,10 +1,17 @@
 from tkinter import *
+from tkinter import messagebox
 from PIL import Image, ImageTk
 import TKinterModernThemes as TKMT
+
 from frontend import resource_images
 
 
 class App(TKMT.ThemedTKinterFrame):
+
+    file_handler = None
+
+    messagebox = messagebox
+
     def __init__(self, theme, mode):
         super().__init__("Wild West Poster Generator", theme, mode)
 
@@ -20,7 +27,7 @@ class App(TKMT.ThemedTKinterFrame):
 
         # Build the UI
         self.set_frame_components()
-        self.run()
+
 
     def set_frame_components(self):
         self.set_title()
@@ -39,7 +46,7 @@ class App(TKMT.ThemedTKinterFrame):
         title_label.grid(column=0, row=0)
 
     def set_inputs(self):
-        upload_button = self.Button(text="Upload Image", command=hi)
+        upload_button = self.Button(text="Upload Image", command=lambda: self.file_handler.get_file_from_dialog())
         upload_button.grid(column=1, row=0)
 
         name_entry = self.Entry(textvariable=self.name_var)
@@ -112,6 +119,7 @@ class App(TKMT.ThemedTKinterFrame):
             "date": self.date_var.get(),
             "font": self.font_var.get(),
         }
+
 
 
 def hi():
