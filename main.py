@@ -1,3 +1,6 @@
 from frontend import GUI
-#TODO: Give all buttons commands
-GUI.start()
+
+app = GUI.App("azure", "dark")
+
+def get_app():
+    return app

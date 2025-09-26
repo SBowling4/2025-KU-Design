@@ -3,4 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (2025_KU_Design_Challenge)" />
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (2025_KU_Design_Challenge)" project-jdk-type="Python SDK" />
 </project>
