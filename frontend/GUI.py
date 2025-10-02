@@ -115,7 +115,10 @@ class App(TKMT.ThemedTKinterFrame):
         generate_button.grid(column=2, row=6)
 
     def set_current_image(self):
-        current_image = resource_images.get_current_image().convert('RGB')
+        try :
+            current_image = resource_images.get_current_image().convert('RGB')
+        except FileNotFoundError:
+            current_image = resource_images.temp_image.convert('RGB')
 
         self.images['current_image'] = ImageTk.PhotoImage(current_image)
 
