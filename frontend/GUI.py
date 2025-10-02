@@ -20,7 +20,8 @@ class App(TKMT.ThemedTKinterFrame):
         self.date_var = StringVar()
         self.font_var = StringVar()
         self.frame_var = StringVar()
-        self.bg_var = StringVar()
+        self.filter_var = StringVar()
+
 
         # Store images so they aren’t garbage-collected
         self.images = {}
@@ -35,7 +36,7 @@ class App(TKMT.ThemedTKinterFrame):
         self.set_font_dropdown()
         self.set_frame_buttons()
         self.set_save_button()
-        self.set_background_buttons()
+        self.set_filter_buttons()
         self.set_generate_button()
         self.set_current_image()
 
@@ -76,30 +77,30 @@ class App(TKMT.ThemedTKinterFrame):
         self.images['frame_2'] = ImageTk.PhotoImage(frame_2_rgb)
         self.images['frame_3'] = ImageTk.PhotoImage(frame_3_rgb)
 
-        frame_1_button = Button(self.root, command=hi, image=self.images['frame_1'])
-        frame_2_button = Button(self.root, command=hi, image=self.images['frame_2'])
-        frame_3_button = Button(self.root, command=hi, image=self.images['frame_3'])
+        frame_1_button = Button(self.root, command=self.update_frame("frame_1"), image=self.images['frame_1'])
+        frame_2_button = Button(self.root, command=self.update_frame("frame_2"), image=self.images['frame_2'])
+        frame_3_button = Button(self.root, command=self.update_frame("frame_3"), image=self.images['frame_3'])
 
         frame_1_button.grid(column=2, row=3)
         frame_2_button.grid(column=2, row=4)
         frame_3_button.grid(column=2, row=5)
 
-    def set_background_buttons(self):
-        bg_label = self.Label("Backgrounds")
+    def set_filter_buttons(self):
+        filter_label = self.Label("Filters")
 
-        bg_label.grid(column=4, row=2)
+        filter_label.grid(column=4, row=2)
 
-        bg_1_rgb = resource_images.bg_1.convert('RGB').resize((100, 100))
-        bg_2_rgb = resource_images.bg_2.convert('RGB').resize((100, 100))
-        bg_3_rgb = resource_images.bg_3.convert('RGB').resize((100, 100))
+        filter_1_rgb = resource_images.filter_1.convert('RGB').resize((100, 100))
+        filter_2_rgb = resource_images.filter_2.convert('RGB').resize((100, 100))
+        filter_3_rgb = resource_images.filter_3.convert('RGB').resize((100, 100))
 
-        self.images['bg_1'] = ImageTk.PhotoImage(bg_1_rgb)
-        self.images['bg_2'] = ImageTk.PhotoImage(bg_2_rgb)
-        self.images['bg_3'] = ImageTk.PhotoImage(bg_3_rgb)
+        self.images['filter_1'] = ImageTk.PhotoImage(filter_1_rgb)
+        self.images['filter_2'] = ImageTk.PhotoImage(filter_2_rgb)
+        self.images['filter_3'] = ImageTk.PhotoImage(filter_3_rgb)
 
-        bg_1_button = Button(self.root, command=hi, image=self.images['bg_1'])
-        bg_2_button = Button(self.root, command=hi, image=self.images['bg_2'])
-        bg_3_button = Button(self.root, command=hi,image=self.images['bg_3'])
+        bg_1_button = Button(self.root, command=self.update_filter("filter_1"), image=self.images['filter_1'])
+        bg_2_button = Button(self.root, command=self.update_filter("filter_2"), image=self.images['filter_2'])
+        bg_3_button = Button(self.root, command=self.update_filter("filter_3"), image=self.images['filter_3'])
 
         bg_1_button.grid(column=4, row=3)
         bg_2_button.grid(column=4, row=4)
@@ -129,13 +130,19 @@ class App(TKMT.ThemedTKinterFrame):
 
         self.set_current_image()
 
+    def update_frame(self, frame):
+        self.frame_var.set(frame)
 
+    def update_filter(self, filter):
+        self.filter_var.set(filter)
 
     def get_entries(self) -> dict[str, str]:
         return {
             "name": self.name_var.get(),
             "date": self.date_var.get(),
             "font": self.font_var.get(),
+            "frame": self.frame_var.get(),
+            "filter": self.filter_var.get(),
         }
 
 
