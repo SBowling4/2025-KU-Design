@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e43833ce-c5de-4386-a1d7-0765daa935e8" name="Changes" comment="Image uploading working">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_controller.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/file_handling.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/file_handling.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/resource_images.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/resource_images.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,12 +33,12 @@
     &quot;assignee&quot;: &quot;SBowling4&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/SBowling4/2025-KU-Design.git&quot;,
-    &quot;accountId&quot;: &quot;68eede65-d202-4bca-9cf8-3b82bbdcbe75&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/SBowling4/2025-KU-Design.git",
+    "accountId": "a80e49b2-684d-414f-b07f-7bc3a14b2a82"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -66,7 +61,8 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "file-uploading",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/Orion/PycharmProjects/2025-KU-Design",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -109,7 +105,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-9f8e2b94138c-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.26094.141" />
+        <option value="bundled-python-sdk-b3d66beaba9a-c6efb3732140-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.26199.168" />
       </set>
     </attachedChunks>
   </component>
