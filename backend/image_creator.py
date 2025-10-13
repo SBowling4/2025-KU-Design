@@ -14,15 +14,15 @@ class ImageCreator:
         font = self.entries["font"]
 
         frame = self.entries["frame"]
-        filter = self.entries["bg"]
+        filter = self.entries["filter"]
 
         filter_image = None
 
-        if filter == "bg_1":
+        if filter == "filter_1":
             filter_image = resource_images.filter_1
-        elif filter == "bg_2":
+        elif filter == "filter_2":
             filter_image = resource_images.filter_2
-        elif filter == "bg_3":
+        elif filter == "filter_3":
             filter_image = resource_images.filter_3
         else:
             raise Exception("Unknown background image")
@@ -39,14 +39,17 @@ class ImageCreator:
             raise Exception("Unknown frame image")
 
         current_image = resource_images.get_current_image()
+        current_image = current_image.convert("RGBA")
 
         frame_image.resize(current_image.size)
-        filter_image.resize(current_image.size)
+        frame_image = frame_image.convert('RGBA')
 
-        current_image_frame = Image.alpha_composite(frame_image, current_image)
+        # filter_image.resize(current_image.size)
 
-        final_image = Image.alpha_composite(current_image_frame, filter_image)
+        current_image_frame = Image.alpha_composite(current_image, frame_image)
 
-        return final_image
+        # final_image = Image.alpha_composite(current_image_frame, filter_image)
+
+        return current_image_frame
 
 

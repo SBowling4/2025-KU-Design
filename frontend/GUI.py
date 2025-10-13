@@ -9,6 +9,7 @@ from frontend import resource_images
 class App(TKMT.ThemedTKinterFrame):
 
     file_handler = None
+    image_creator = None
 
     messagebox = messagebox
 
@@ -112,7 +113,7 @@ class App(TKMT.ThemedTKinterFrame):
         save_button.grid(column=4, row=6)
 
     def set_generate_button(self):
-        generate_button = self.Button(text="Generate Image", command=hi)
+        generate_button = self.Button(text="Generate Image", command=self.set_edited_image)
         generate_button.grid(column=2, row=6)
 
     def set_current_image(self):
@@ -123,6 +124,15 @@ class App(TKMT.ThemedTKinterFrame):
         current_image_label = Label(self.root, image=self.images['current_image'])
 
         current_image_label.grid(column=0, row=1, rowspan=5, columnspan=2)
+
+    def set_edited_image(self):
+        edited_image = self.image_creator.create_image()
+
+        self.file_handler.set_edited_image(edited_image)
+
+        self.images['current_image'] = ImageTk.PhotoImage(edited_image)
+
+        self.set_edited_image()
 
 
     def upload_image(self):

@@ -12,6 +12,7 @@ file_handler.app = app
 image.app = app
 
 app.file_handler = file_handler
+app.image_creator = image
 
 app.run()
 

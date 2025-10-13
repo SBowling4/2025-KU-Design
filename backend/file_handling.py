@@ -2,8 +2,7 @@
 import glob
 import os
 import shutil
-from tkinter import filedialog
-
+from tkinter import filedialog, messagebox
 
 
 class FileHandler():
@@ -12,13 +11,14 @@ class FileHandler():
         self.has_image = False
 
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    FOLDER_PATH = os.path.join(BASE_DIR, "resources", "current_image")
+    CURRENT_IMAGE_PATH = os.path.join(BASE_DIR, "resources", "current_image")
+    EDITED_IMAGE_PATH = os.path.join(BASE_DIR, "resources", "edited_image")
+
 
     app = None
 
     def get_file_from_dialog(self):
         from tkinter import messagebox
-        import os
 
         if self.has_image:
             response = messagebox.askyesno(
@@ -39,13 +39,13 @@ class FileHandler():
             return
 
         # Ensure destination folder exists
-        os.makedirs(self.FOLDER_PATH, exist_ok=True)
+        os.makedirs(self.CURRENT_IMAGE_PATH, exist_ok=True)
 
         _, ext = os.path.splitext(self.file_path)
-        dest_path = os.path.join(self.FOLDER_PATH, f"current_image{ext}")
+        dest_path = os.path.join(self.CURRENT_IMAGE_PATH, f"current_image{ext}")
 
         try:
-            for f in glob.glob(os.path.join(self.FOLDER_PATH, "current_image.*")):
+            for f in glob.glob(os.path.join(self.CURRENT_IMAGE_PATH, "current_image.*")):
                 os.remove(f)
         except Exception as e:
             messagebox.showerror("Error", f"Error deleting previous image: {str(e)}")
@@ -59,6 +59,23 @@ class FileHandler():
             return
 
         self.has_image = True
+
+    def set_edited_image(self, edited_image):
+        os.makedirs(self.EDITED_IMAGE_PATH, exist_ok=True)
+        _, ext = os.path.splitext(self.file_path)
+        dest_path = os.path.join(self.EDITED_IMAGE_PATH, f"edited_image{ext}")
+
+        try:
+            for f in glob.glob(os.path.join(self.EDITED_IMAGE_PATH, "edited_image.*")):
+                os.remove(f)
+        except Exception as e:
+            messagebox.showerror("Error", f"Error deleting edited image: {str(e)}")
+
+        try :
+            shutil.copy(edited_image, dest_path)
+        except Exception as e:
+            messagebox.showerror("Error", f"Error copying edited image: {str(e)}")
+
 
     def get_file_path(self):
         return self.file_path
