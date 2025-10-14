@@ -1,0 +1,5 @@
+resources/current_image/*
+resources/edited_image/*
+__pycache__/
+*.pyc
+*.pyo

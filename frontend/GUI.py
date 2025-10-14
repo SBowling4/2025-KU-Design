@@ -9,6 +9,7 @@ from frontend import resource_images
 class App(TKMT.ThemedTKinterFrame):
 
     file_handler = None
+    image_creator = None
 
     messagebox = messagebox
 
@@ -20,7 +21,8 @@ class App(TKMT.ThemedTKinterFrame):
         self.date_var = StringVar()
         self.font_var = StringVar()
         self.frame_var = StringVar()
-        self.bg_var = StringVar()
+        self.filter_var = StringVar()
+
 
         # Store images so they aren’t garbage-collected
         self.images = {}
@@ -35,9 +37,9 @@ class App(TKMT.ThemedTKinterFrame):
         self.set_font_dropdown()
         self.set_frame_buttons()
         self.set_save_button()
-        self.set_background_buttons()
+        self.set_filter_buttons()
         self.set_generate_button()
-        self.set_current_image()
+        self.set_current_image(False)
 
         for child in self.root.winfo_children():
             child.grid_configure(padx=5, pady=5)
@@ -68,38 +70,38 @@ class App(TKMT.ThemedTKinterFrame):
 
         frame_label.grid(column=2, row=2)
 
-        frame_1_rgb = resource_images.frame_1.convert('RGB').resize((100, 100), Image.Resampling.LANCZOS)
-        frame_2_rgb = resource_images.frame_2.convert('RGB').resize((100, 100), Image.Resampling.LANCZOS)
-        frame_3_rgb = resource_images.frame_3.convert('RGB').resize((100, 100), Image.Resampling.LANCZOS)
+        frame_1_rgb = resource_images.frame_1.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
+        frame_2_rgb = resource_images.frame_2.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
+        frame_3_rgb = resource_images.frame_3.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
 
         self.images['frame_1'] = ImageTk.PhotoImage(frame_1_rgb)
         self.images['frame_2'] = ImageTk.PhotoImage(frame_2_rgb)
         self.images['frame_3'] = ImageTk.PhotoImage(frame_3_rgb)
 
-        frame_1_button = Button(self.root, command=hi, image=self.images['frame_1'])
-        frame_2_button = Button(self.root, command=hi, image=self.images['frame_2'])
-        frame_3_button = Button(self.root, command=hi, image=self.images['frame_3'])
+        frame_1_button = Button(self.root, command=lambda: self.update_frame("frame_1"), image=self.images['frame_1'])
+        frame_2_button = Button(self.root, command=lambda: self.update_frame("frame_2"), image=self.images['frame_2'])
+        frame_3_button = Button(self.root, command=lambda: self.update_frame("frame_3"), image=self.images['frame_3'])
 
         frame_1_button.grid(column=2, row=3)
         frame_2_button.grid(column=2, row=4)
         frame_3_button.grid(column=2, row=5)
 
-    def set_background_buttons(self):
-        bg_label = self.Label("Backgrounds")
+    def set_filter_buttons(self):
+        filter_label = self.Label("Filters")
 
-        bg_label.grid(column=4, row=2)
+        filter_label.grid(column=4, row=2)
 
-        bg_1_rgb = resource_images.bg_1.convert('RGB').resize((100, 100))
-        bg_2_rgb = resource_images.bg_2.convert('RGB').resize((100, 100))
-        bg_3_rgb = resource_images.bg_3.convert('RGB').resize((100, 100))
+        filter_1_rgb = resource_images.filter_1.convert('RGB').resize((100, 100))
+        filter_2_rgb = resource_images.filter_2.convert('RGB').resize((100, 100))
+        filter_3_rgb = resource_images.filter_3.convert('RGB').resize((100, 100))
 
-        self.images['bg_1'] = ImageTk.PhotoImage(bg_1_rgb)
-        self.images['bg_2'] = ImageTk.PhotoImage(bg_2_rgb)
-        self.images['bg_3'] = ImageTk.PhotoImage(bg_3_rgb)
+        self.images['filter_1'] = ImageTk.PhotoImage(filter_1_rgb)
+        self.images['filter_2'] = ImageTk.PhotoImage(filter_2_rgb)
+        self.images['filter_3'] = ImageTk.PhotoImage(filter_3_rgb)
 
-        bg_1_button = Button(self.root, command=hi, image=self.images['bg_1'])
-        bg_2_button = Button(self.root, command=hi, image=self.images['bg_2'])
-        bg_3_button = Button(self.root, command=hi,image=self.images['bg_3'])
+        bg_1_button = Button(self.root, command=lambda: self.update_filter("filter_1"), image=self.images['filter_1'])
+        bg_2_button = Button(self.root, command=lambda: self.update_filter("filter_2"), image=self.images['filter_2'])
+        bg_3_button = Button(self.root, command=lambda: self.update_filter("filter_3"), image=self.images['filter_3'])
 
         bg_1_button.grid(column=4, row=3)
         bg_2_button.grid(column=4, row=4)
@@ -107,38 +109,59 @@ class App(TKMT.ThemedTKinterFrame):
 
 
     def set_save_button(self):
-        save_button = self.Button(text="Save Image", command=hi)
+        save_button = self.Button(text="Save Image", command=lambda: self.file_handler.save_image_to_desktop())
         save_button.grid(column=4, row=6)
 
     def set_generate_button(self):
-        generate_button = self.Button(text="Generate Image", command=hi)
+        generate_button = self.Button(text="Generate Image", command=self.update_edited_image)
         generate_button.grid(column=2, row=6)
 
-    def set_current_image(self):
-        try :
-            current_image = resource_images.get_current_image().convert('RGB')
-        except FileNotFoundError:
-            current_image = resource_images.temp_image.convert('RGB')
+    def set_current_image(self, edit):
+        if not edit:
+            current_image = resource_images.get_current_image().convert('RGB').resize((500, 500))
 
-        self.images['current_image'] = ImageTk.PhotoImage(current_image)
+            self.images['current_image'] = ImageTk.PhotoImage(current_image)
 
         current_image_label = Label(self.root, image=self.images['current_image'])
 
         current_image_label.grid(column=0, row=1, rowspan=5, columnspan=2)
 
+    def update_edited_image(self):
+        if not self.get_entries()['frame']:
+            messagebox.showerror("Error", "No frame selected")
+            return
+
+        if not self.get_entries()['filter']:
+            messagebox.showerror("Error", "No filter selected")
+            return
+
+        edited_image = self.image_creator.create_image()
+
+        self.file_handler.save_edited_image(edited_image)
+
+        self.images['current_image'] = ImageTk.PhotoImage(edited_image)
+
+        self.set_current_image(True)
+
 
     def upload_image(self):
         self.file_handler.get_file_from_dialog()
 
-        self.set_current_image()
+        self.set_current_image(False)
 
+    def update_frame(self, frame):
+        self.frame_var.set(frame)
 
+    def update_filter(self, fil):
+        self.filter_var.set(fil)
 
     def get_entries(self) -> dict[str, str]:
         return {
             "name": self.name_var.get(),
             "date": self.date_var.get(),
             "font": self.font_var.get(),
+            "frame": self.frame_var.get(),
+            "filter": self.filter_var.get(),
         }
 
 
