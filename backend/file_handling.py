@@ -3,9 +3,8 @@ import glob
 import os
 import shutil
 from tkinter import filedialog, messagebox
-from PIL import Image
-from frontend import  resource_images
-
+from PIL import Image, ImageFont, ImageDraw
+import datetime
 
 class FileHandler():
     def __init__(self):
@@ -80,7 +79,8 @@ class FileHandler():
 
     def save_image_to_desktop(self):
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-        save_path = os.path.join(desktop_path, "edited_image.png")
+        file_name = "Wild_West_Poster_" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".png"
+        save_path = os.path.join(desktop_path, file_name)
 
         # Get the edited image file path
         edited_image_files = glob.glob(os.path.join(self.EDITED_IMAGE_PATH, "edited_image.*"))

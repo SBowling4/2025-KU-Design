@@ -127,6 +127,14 @@ class App(TKMT.ThemedTKinterFrame):
         current_image_label.grid(column=0, row=1, rowspan=5, columnspan=2)
 
     def update_edited_image(self):
+        if not self.get_entries()['frame']:
+            messagebox.showerror("Error", "No frame selected")
+            return
+
+        if not self.get_entries()['filter']:
+            messagebox.showerror("Error", "No filter selected")
+            return
+
         edited_image = self.image_creator.create_image()
 
         self.file_handler.save_edited_image(edited_image)
