@@ -25,7 +25,7 @@ def get_current_image():
     if not current_image_files:
         raise FileNotFoundError("No current image found")
 
-    return Image.open(current_image_files[0])
+    return Image.open(current_image_files[0]).resize((500, 500)).convert('RGB')
 
 def get_edited_image():
     edited_image_files = glob.glob(os.path.join(EDITED_IMAGE_DIR, "edited_image.*"))
