@@ -3,7 +3,7 @@ import glob
 import os
 import shutil
 from tkinter import filedialog, messagebox
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image
 import datetime
 
 class FileHandler():

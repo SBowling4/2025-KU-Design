@@ -2,8 +2,9 @@ from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import TKinterModernThemes as TKMT
+from tkcalendar import DateEntry
 
-from frontend import resource_images
+from frontend import resources
 
 
 class App(TKMT.ThemedTKinterFrame):
@@ -16,7 +17,7 @@ class App(TKMT.ThemedTKinterFrame):
     def __init__(self, theme, mode):
         super().__init__("Wild West Poster Generator", theme, mode)
 
-        # Tkinter variables (safe to create AFTER super().__init__)
+        # Tkinter variables
         self.name_var = StringVar()
         self.date_var = StringVar()
         self.font_var = StringVar()
@@ -24,7 +25,7 @@ class App(TKMT.ThemedTKinterFrame):
         self.filter_var = StringVar()
 
 
-        # Store images so they aren’t garbage-collected
+        # Store images
         self.images = {}
 
         # Build the UI
@@ -55,11 +56,11 @@ class App(TKMT.ThemedTKinterFrame):
         name_entry = self.Entry(textvariable=self.name_var)
         name_entry.grid(column=2, row=1)
 
-        date_entry = self.Entry(textvariable=self.date_var)
+        date_entry = DateEntry(self.root, textvariable=self.date_var)
         date_entry.grid(column=3, row=1)
 
     def set_font_dropdown(self):
-        font_option_list = ['font1', 'font2']
+        font_option_list = ['Breaking Road', 'Fortalesia', 'Kitten Cafe']
         self.font_var.set(font_option_list[0])
 
         font_entry = self.OptionMenu(font_option_list, self.font_var)
@@ -70,9 +71,9 @@ class App(TKMT.ThemedTKinterFrame):
 
         frame_label.grid(column=2, row=2)
 
-        frame_1_rgb = resource_images.frame_1.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
-        frame_2_rgb = resource_images.frame_2.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
-        frame_3_rgb = resource_images.frame_3.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
+        frame_1_rgb = resources.frame_1.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
+        frame_2_rgb = resources.frame_2.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
+        frame_3_rgb = resources.frame_3.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
 
         self.images['frame_1'] = ImageTk.PhotoImage(frame_1_rgb)
         self.images['frame_2'] = ImageTk.PhotoImage(frame_2_rgb)
@@ -91,9 +92,9 @@ class App(TKMT.ThemedTKinterFrame):
 
         filter_label.grid(column=4, row=2)
 
-        filter_1_rgb = resource_images.filter_1.convert('RGB').resize((100, 100))
-        filter_2_rgb = resource_images.filter_2.convert('RGB').resize((100, 100))
-        filter_3_rgb = resource_images.filter_3.convert('RGB').resize((100, 100))
+        filter_1_rgb = resources.filter_1.convert('RGB').resize((100, 100))
+        filter_2_rgb = resources.filter_2.convert('RGB').resize((100, 100))
+        filter_3_rgb = resources.filter_3.convert('RGB').resize((100, 100))
 
         self.images['filter_1'] = ImageTk.PhotoImage(filter_1_rgb)
         self.images['filter_2'] = ImageTk.PhotoImage(filter_2_rgb)
@@ -118,7 +119,7 @@ class App(TKMT.ThemedTKinterFrame):
 
     def set_current_image(self, edit):
         if not edit:
-            current_image = resource_images.get_current_image().convert('RGB').resize((500, 500))
+            current_image = resources.get_current_image().convert('RGB').resize((500, 500))
 
             self.images['current_image'] = ImageTk.PhotoImage(current_image)
 
