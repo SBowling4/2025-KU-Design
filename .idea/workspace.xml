@@ -8,6 +8,11 @@
       <change beforePath="$PROJECT_DIR$/.idea/2025_KU_Design_Challenge.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/2025_KU_Design_Challenge.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/image_creator.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/image_creator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/resources.py" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/resources.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/fonts/fortalesia.otf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/fonts/kitten_cafe.ttf" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -60,7 +60,7 @@ class App(TKMT.ThemedTKinterFrame):
         date_entry.grid(column=3, row=1)
 
     def set_font_dropdown(self):
-        font_option_list = ['Breaking Road', 'Fortalesia', 'Kitten Cafe']
+        font_option_list = ['Breaking Road', 'Perfecto', 'Priestacy']
         self.font_var.set(font_option_list[0])
 
         font_entry = self.OptionMenu(font_option_list, self.font_var)

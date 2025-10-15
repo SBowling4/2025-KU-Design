@@ -49,10 +49,10 @@ class ImageCreator:
 
         if font == "Breaking Road":
             font_obj = resources.breaking_road
-        elif font == "Fortalesia":
-            font_obj = resources.fotalesia
-        elif font == "Kitten Cafe":
-            font_obj = resources.kitten_cafe
+        elif font == "Perfecto":
+            font_obj = resources.perfecto
+        elif font == "Priestacy":
+            font_obj = resources.priestacy
         else:
             raise Exception("Unknown font")
 

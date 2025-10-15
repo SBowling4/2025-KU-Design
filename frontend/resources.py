@@ -21,8 +21,8 @@ filter_2 = Image.open(os.path.join(BACKGROUND_DIR, "Filter_2.png"))
 filter_3 = Image.open(os.path.join(BACKGROUND_DIR, "Filter_3.png"))
 
 breaking_road = ImageFont.truetype(os.path.join(FONTS_DIR, "breaking_road.ttf"), 30)
-fotalesia = ImageFont.truetype(os.path.join(FONTS_DIR, "fortalesia.otf"), 30) # TODO: Replace this and kitten (numbers no work :( )
-kitten_cafe = ImageFont.truetype(os.path.join(FONTS_DIR, "kitten_cafe.ttf"), 30)
+perfecto = ImageFont.truetype(os.path.join(FONTS_DIR, "perfecto.ttf"), 30)
+priestacy = ImageFont.truetype(os.path.join(FONTS_DIR, "priestacy.otf"), 30)
 
 def get_current_image():
     current_image_files = glob.glob(os.path.join(CURRENT_IMAGE_DIR, "current_image.*"))
