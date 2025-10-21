@@ -79,46 +79,51 @@ class App(TKMT.ThemedTKinterFrame):
 
     def set_frame_buttons(self):
         frame_label = self.Label("Frames")
-
         frame_label.grid(column=2, row=3)
 
-        frame_1_rgb = resources.frame_1.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
-        frame_2_rgb = resources.frame_2.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
-        frame_3_rgb = resources.frame_3.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
+        frames = {
+            "frame_1": resources.frame_1,
+            "frame_2": resources.frame_2,
+            "frame_3": resources.frame_3
+        }
 
-        self.images['frame_1'] = ImageTk.PhotoImage(frame_1_rgb)
-        self.images['frame_2'] = ImageTk.PhotoImage(frame_2_rgb)
-        self.images['frame_3'] = ImageTk.PhotoImage(frame_3_rgb)
+        self.frame_buttons = {}
 
-        frame_1_button = Button(self.root, command=lambda: self.update_frame("frame_1"), image=self.images['frame_1'])
-        frame_2_button = Button(self.root, command=lambda: self.update_frame("frame_2"), image=self.images['frame_2'])
-        frame_3_button = Button(self.root, command=lambda: self.update_frame("frame_3"), image=self.images['frame_3'])
+        for i, (key, img) in enumerate(frames.items(), start=4):
+            resized = img.convert('RGBA').resize((100, 100), Image.Resampling.LANCZOS)
+            self.images[key] = ImageTk.PhotoImage(resized)
 
-        frame_1_button.grid(column=2, row=4)
-        frame_2_button.grid(column=2, row=5)
-        frame_3_button.grid(column=2, row=6)
+            border = Frame(self.root, background="gray", padx=2, pady=2)
+            border.grid(column=2, row=i)
+
+            btn = Button(border, image=self.images[key], command=lambda k=key: self.update_frame(k))
+            btn.pack()
+
+            self.frame_buttons[key] = (border, btn)
 
     def set_filter_buttons(self):
         filter_label = self.Label("Filters")
-
         filter_label.grid(column=4, row=3)
 
-        filter_1_rgb = resources.filter_display_1.convert('RGB').resize((100, 100))
-        filter_2_rgb = resources.filter_display_2.convert('RGB').resize((100, 100))
-        filter_3_rgb = resources.filter_display_3.convert('RGB').resize((100, 100))
+        filters = {
+            "filter_1": resources.filter_display_1,
+            "filter_2": resources.filter_display_2,
+            "filter_3": resources.filter_display_3
+        }
 
-        self.images['filter_1'] = ImageTk.PhotoImage(filter_1_rgb)
-        self.images['filter_2'] = ImageTk.PhotoImage(filter_2_rgb)
-        self.images['filter_3'] = ImageTk.PhotoImage(filter_3_rgb)
+        self.filter_buttons = {}
 
-        bg_1_button = Button(self.root, command=lambda: self.update_filter("filter_1"), image=self.images['filter_1'])
-        bg_2_button = Button(self.root, command=lambda: self.update_filter("filter_2"), image=self.images['filter_2'])
-        bg_3_button = Button(self.root, command=lambda: self.update_filter("filter_3"), image=self.images['filter_3'])
+        for i, (key, img) in enumerate(filters.items(), start=4):
+            resized = img.convert('RGB').resize((100, 100))
+            self.images[key] = ImageTk.PhotoImage(resized)
 
-        bg_1_button.grid(column=4, row=4)
-        bg_2_button.grid(column=4, row=5)
-        bg_3_button.grid(column=4, row=6)
+            border = Frame(self.root, background="gray", padx=2, pady=2)
+            border.grid(column=4, row=i)
 
+            btn = Button(border, image=self.images[key], command=lambda k=key: self.update_filter(k))
+            btn.pack()
+
+            self.filter_buttons[key] = (border, btn)
 
     def set_save_button(self):
         save_button = self.Button(text="Save Image", command=lambda: self.file_handler.save_image_to_desktop())
@@ -178,7 +183,6 @@ class App(TKMT.ThemedTKinterFrame):
     def upload_image(self):
         self.file_handler.get_file_from_dialog()
 
-
         try:
             resources.get_edited_image()
         except FileNotFoundError:
@@ -188,9 +192,13 @@ class App(TKMT.ThemedTKinterFrame):
 
     def update_frame(self, frame):
         self.frame_var.set(frame)
+        for key, (border, _) in self.frame_buttons.items():
+            border.config(background="blue" if key == frame else "gray")
 
     def update_filter(self, fil):
         self.filter_var.set(fil)
+        for key, (border, _) in self.filter_buttons.items():
+            border.config(background="blue" if key == fil else "gray")
 
     def get_entries(self) -> dict[str, str]:
         return {
