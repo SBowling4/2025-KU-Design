@@ -6,7 +6,7 @@ from tkinter import filedialog, messagebox
 from PIL import Image
 import datetime
 
-class FileHandler():
+class FileHandler:
     def __init__(self):
         self.file_path = ""
         self.has_image = False
@@ -17,6 +17,13 @@ class FileHandler():
 
 
     app = None
+
+    def clear_images(self):
+        for f in glob.glob(os.path.join(self.CURRENT_IMAGE_PATH, "current_image.*")):
+            os.remove(f)
+
+        for f in glob.glob(os.path.join(self.EDITED_IMAGE_PATH, "edited_image.png")):
+            os.remove(f)
 
     def get_file_from_dialog(self):
         from tkinter import messagebox
