@@ -113,7 +113,7 @@ class App(TKMT.ThemedTKinterFrame):
             self.filter_buttons[key] = (border, btn)
 
     def set_save_button(self):
-        save_button = self.Button(text="Save Image", command=lambda: self.file_handler.save_image_to_desktop)
+        save_button = self.Button(text="Save Image", command=lambda: self.file_handler.save_image_to_desktop())
         save_button.grid(column=4, row=7)
 
     def set_generate_button(self):
@@ -167,11 +167,17 @@ class App(TKMT.ThemedTKinterFrame):
 
         # Validate frame and filter selection
         if not self.get_entries()['frame']:
-            messagebox.showerror("Error", "No frame selected")
-            return
+            frame_response = messagebox.askyesno("No Frame", "No frame selected, would you like to continue?")
+            if frame_response:
+                self.get_entries()['frame'] = None
+            else:
+                return
         if not self.get_entries()['filter']:
-            messagebox.showerror("Error", "No filter selected")
-            return
+            filter_response = messagebox.askyesno("No Filter", "No filter selected, would you like to continue?")
+            if filter_response:
+                self.get_entries()['filter'] = None
+            else:
+                return
 
         try:
             edited_image = self.image_creator.create_image()

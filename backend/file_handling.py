@@ -36,7 +36,7 @@ class FileHandler:
             parent=self.app.root,
             title="Select an Image",
             filetypes=[("Image files", "*.png *.jpg *.jpeg *.gif"), ("All files", "*.*")]
-        )
+        ) #TODO: when cancelled fix
         if not self.file_path:  # User cancelled
             return
 
@@ -51,6 +51,8 @@ class FileHandler:
                 if not os.path.exists(base_image_path):
                     messagebox.showwarning(
                         "Base Image Missing",
+
+                        "This image appears to be a previously generated poster.\n\n"
                         f"The original base image at:\n{base_image_path}\nwas not found.\n"
                         "You can still continue, but the poster will start from this uploaded image."
                     )

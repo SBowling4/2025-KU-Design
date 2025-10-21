@@ -27,23 +27,25 @@ class ImageCreator:
             filter_image = resources.filter_3
             filter_color = (117, 73, 11, 255)
         else:
-            raise Exception("Unknown filter")
+            filter_image = None
 
         # Select frame and text positions
         if frame == "frame_1":
             frame_image = resources.frame_1
             name_position = (50, 340)
-            date_position = (50, 390)
+            location_position = (50, 390)
         elif frame == "frame_2":
             frame_image = resources.frame_2
             name_position = (50, 290)
-            date_position = (50, 340)
+            location_position = (50, 340)
         elif frame == "frame_3":
             frame_image = resources.frame_3
             name_position = (100, 325)
-            date_position = (100, 375)
+            location_position = (100, 375)
         else:
-            raise Exception("Unknown frame")
+            frame_image = None
+            name_position = (100,400)
+            location_position = (100,450)
 
         # Select font
         if font == "Breaking Road":
@@ -65,20 +67,31 @@ class ImageCreator:
         current_image = resources.get_current_image().convert("RGBA")
 
         # Resize frame and filter
-        frame_image = frame_image.resize(current_image.size).convert("RGBA")
-        filter_image = filter_image.resize(current_image.size).convert("RGBA")
 
-        # Apply frame
-        current_image_frame = Image.alpha_composite(current_image, frame_image)
+        if frame_image:
+            frame_image = frame_image.resize(current_image.size).convert("RGBA")
+
+        if filter_image:
+            filter_image = filter_image.resize(current_image.size).convert("RGBA")
+
+        current_image_frame = current_image
+
+        if  frame_image:
+            current_image_frame = Image.alpha_composite(current_image, frame_image)
 
         # Draw text
         draw = ImageDraw.Draw(current_image_frame)
         draw.text(xy=name_position, text=name, font=font_obj, fill=text_color)
-        draw.text(xy=date_position, text=location, font=font_obj, fill=text_color)
+        draw.text(xy=location_position, text=location, font=font_obj, fill=text_color)
 
         # Apply filter overlay
-        final_image = Image.alpha_composite(current_image_frame, filter_image)
-        brown_overlay = Image.new("RGBA", final_image.size, filter_color)
-        final_image = Image.blend(final_image, brown_overlay, 0.4)
+        final_image = current_image_frame
+
+        if filter_image:
+            final_image = Image.alpha_composite(current_image_frame, filter_image)
+            brown_overlay = Image.new("RGBA", final_image.size, filter_color)
+            final_image = Image.blend(final_image, brown_overlay, 0.4)
+
+
 
         return final_image
