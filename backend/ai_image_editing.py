@@ -203,6 +203,7 @@ class AIHandling:
 
             logging.info("AI successfully generated and processed a new image from base64 data.")
             self.file_handler.save_edited_image(resized_image)
+            return resized_image
 
         except Exception as e:
             logging.error(f"Failed to process image data from base64: {e}")

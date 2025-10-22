@@ -175,10 +175,22 @@ class App(TKMT.ThemedTKinterFrame):
         text_color_dropdown = self.OptionMenu(text_color_option_list, self.text_color_var)
         text_color_dropdown.grid(column=5, row=2)
 
-    def set_current_image(self, edit=False):
+    def set_current_image(self, edit=False, input_image: Image=None):
         """
         Display current image. edit=True shows edited image if exists.
         """
+        if input_image:
+            self.images['current_image'] = ImageTk.PhotoImage(input_image)
+
+            if hasattr(self, 'current_image_label'):
+                self.current_image_label.config(image=self.images['current_image'])
+                self.current_image_label.image = self.images['current_image']
+            else:
+                self.current_image_label = Label(self.root, image=self.images['current_image'])
+                self.current_image_label.grid(column=0, row=1, rowspan=6, columnspan=2)
+
+
+            return
         try:
             if edit:
                 img = resources.get_edited_image().convert('RGB').resize((500, 500))
@@ -314,8 +326,7 @@ class App(TKMT.ThemedTKinterFrame):
             messagebox.showerror("Error", "Failed to save edited image")
 
     def generate_ai(self):
-        self.ai_handler.edit_with_ai(self.get_ai_var())
-        self.update_edited_image()
+        self.update_edited_image(self.ai_handler.edit_with_ai(self.get_ai_var()))
 
     def save_to_desktop(self):
         """Save the current edited image to desktop"""
