@@ -7,30 +7,21 @@ import glob
 from io import BytesIO
 from typing import Optional
 
-# We still use the OpenAI SDK because OpenRouter is compatible with it
 from openai import OpenAI, RateLimitError, APIError
 from PIL import Image
 from dotenv import load_dotenv
 
 import resources.resources
 
-# Import FileHandler for dependency injection (even if not strictly used for file access here)
 
-# ----------------------------------------
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# Load environment variables (now looking for OPENROUTER_API_KEY)
 load_dotenv()
 
-# --- Configuration for Exponential Backoff ---
 MAX_RETRIES = 3
 BASE_DELAY_SECONDS = 5
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
-
-
-# --------------------------------------------
 
 class AIHandling:
     """
@@ -39,10 +30,8 @@ class AIHandling:
     """
 
     def __init__(self):
-        # Store the file handler instance (retained as dependency might be needed elsewhere)
         self.file_handler = None
 
-        # Retrieve the API key from the environment
         openrouter_key = os.getenv("OPENROUTER_API_KEY")
 
         if not openrouter_key:
@@ -51,11 +40,9 @@ class AIHandling:
             return
 
         try:
-            # Initialize the OpenAI client pointing to the OpenRouter endpoint
             self.client = OpenAI(
                 base_url=OPENROUTER_BASE_URL,
                 api_key=openrouter_key,
-                # OpenRouter requires an HTTP-Referer header for tracking
                 default_headers={"HTTP-Referer": "http://localhost:8080", "X-Title": "Image Editor App"}
             )
             logging.info("OpenRouter client initialized successfully.")
@@ -70,15 +57,10 @@ class AIHandling:
         """
 
         try:
-            # Use the utility function to get the correct PIL Image object (edited or base)
-            # This handles all the file path logic for us.
             img = resources.resources.get_edited_image()
 
-            # The API input is often better at a specific size (e.g., 512x512)
-            # Resize the image from the 500x500 returned by get_current_image to the API's preferred size.
             img = img.resize((512, 512), Image.Resampling.LANCZOS)
 
-            # Convert to PNG in memory for consistent base64 encoding
             buffered = BytesIO()
             img.save(buffered, format="PNG")
             base64_string = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -99,23 +81,20 @@ class AIHandling:
             logging.error("AI client is not initialized.")
             return None
 
-        base64_image = self._convert_image_to_base64()  # Image is read from the file system here
+        base64_image = self._convert_image_to_base64()
         if not base64_image:
             logging.error("Could not get base64 image data for API request.")
             return None
 
-        # Use a model known to support multimodal input and image output.
         model = "google/gemini-2.5-flash-image-preview"
 
         logging.info(f"Sending multimodal prompt to OpenRouter model: {model} with prompt: {prompt}")
 
-        # 1. Construct the Multimodal Message Payload (OpenAI standard for image input)
         messages = [
             {
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt},
-                    # Multimodal input structure: send the base64 image data
                     {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}}
                 ]
             }
@@ -124,11 +103,9 @@ class AIHandling:
         response = None
         for attempt in range(MAX_RETRIES):
             try:
-                # 2. Call the Chat Completions API
                 response = self.client.chat.completions.create(
                     model=model,
                     messages=messages,
-                    # OpenRouter requires 'modalities' to indicate image output
                     extra_body={
                         "modalities": ["image", "text"],
                         "image_config": {"aspect_ratio": "1:1"}
@@ -158,7 +135,6 @@ class AIHandling:
         else:
             return None
 
-            # 3. Process the response: Extract the base64 image data URL
         image_url = None
 
         try:
@@ -186,7 +162,6 @@ class AIHandling:
             logging.warning("API did not return a valid image URL in the chat completion response.")
             return None
 
-        # Split the data URL to get the raw base64 data
         try:
             _, base64_data = image_url.split(",", 1)
         except ValueError:
@@ -194,11 +169,9 @@ class AIHandling:
             return None
 
         try:
-            # Decode the base64 data into raw image bytes
             image_data = base64.b64decode(base64_data)
             generated_image = Image.open(BytesIO(image_data))
 
-            # Resize the image for consistency in the GUI (500x500 from main.py)
             resized_image = generated_image.resize((500, 500), Image.Resampling.LANCZOS)
 
             logging.info("AI successfully generated and processed a new image from base64 data.")
