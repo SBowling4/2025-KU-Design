@@ -4,13 +4,14 @@ import shutil
 from PIL import Image, PngImagePlugin
 import datetime
 import json
+from typing import Optional, Tuple
 
 
 class PosterMetadata:
     """Handle poster metadata operations"""
 
     @staticmethod
-    def extract_base_image_path(file_path: str) -> tuple[str | None, bool]:
+    def extract_base_image_path(file_path: str) -> Tuple[Optional[str], bool]:
         """
         Extract base image path from PNG metadata if it exists.
         Returns: (base_image_path, base_exists)
@@ -44,15 +45,23 @@ class PosterMetadata:
 
 class FileHandler:
     '''Class for handling file operations'''
+
     def __init__(self):
         self.file_path = ""
         self.has_image = False
-        self.app = None
+        self.app = None  # Placeholder for potential application context
 
-    # Create file paths
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    CURRENT_IMAGE_PATH = os.path.join(BASE_DIR, "resources", "current_image")
-    EDITED_IMAGE_PATH = os.path.join(BASE_DIR, "resources", "edited_image")
+        # Correctly determine BASE_DIR (assuming the script is run from a sub-directory
+        # like '2025-KU-Design' and 'resources' is next to it, which aligns with
+        # the user's initial structure: os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        # Since this file is now separate, we rely on the current working directory or
+        # adjust the path based on the main script's expected location.
+        # We'll stick to the user's relative path logic for consistency.
+
+        # Create file paths
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.CURRENT_IMAGE_PATH = os.path.join(BASE_DIR, "resources", "current_image")
+        self.EDITED_IMAGE_PATH = os.path.join(BASE_DIR, "resources", "edited_image")
 
     def clear_current_image(self):
         """Clear all current images"""
@@ -70,7 +79,7 @@ class FileHandler:
             except Exception as e:
                 print(f"Error removing edited image: {e}")
 
-    def check_for_poster_metadata(self, file_path: str) -> tuple[str | None, bool]:
+    def check_for_poster_metadata(self, file_path: str) -> Tuple[Optional[str], bool]:
         """
         Check if file is a poster with metadata.
         Returns: (base_image_path, base_exists)
@@ -82,12 +91,14 @@ class FileHandler:
         Load a new base image into current_image directory.
         Returns: True on success, False on failure
         """
-        os.makedirs(self.CURRENT_IMAGE_PATH, exist_ok=True) # Checks to see path exists
-        _, ext = os.path.splitext(file_path) # Gets the extension
-        dest_path = os.path.join(self.CURRENT_IMAGE_PATH, f"current_image{ext}") # Creates destination path, saves extension
+        self.clear_current_image()
+        os.makedirs(self.CURRENT_IMAGE_PATH, exist_ok=True)  # Checks to see path exists
+        _, ext = os.path.splitext(file_path)  # Gets the extension
+        dest_path = os.path.join(self.CURRENT_IMAGE_PATH,
+                                 f"current_image{ext}")  # Creates destination path, saves extension
 
         try:
-            shutil.copy(file_path, dest_path) # Saves image
+            shutil.copy(file_path, dest_path)  # Saves image
             self.file_path = file_path
             self.has_image = True
             return True
@@ -100,16 +111,21 @@ class FileHandler:
         Load a poster and its base image for continued editing.
         Returns: True on success, False on failure
         """
-        os.makedirs(self.CURRENT_IMAGE_PATH, exist_ok=True) # Verifies 
-        dest_path = os.path.join(self.CURRENT_IMAGE_PATH, "current_image.png")
+        self.clear_current_image()
+        self.clear_edited_image()
+
+        os.makedirs(self.CURRENT_IMAGE_PATH, exist_ok=True)  # Verifies
+        # We need to preserve the extension of the base image
+        _, ext = os.path.splitext(base_image_path)
+        dest_path = os.path.join(self.CURRENT_IMAGE_PATH, f"current_image{ext}")
 
         try:
             # Copy base image to current_image
             shutil.copy(base_image_path, dest_path)
 
-            # Save the poster as edited_image
+            # Save the poster as edited_image.png (to preserve the PNG format for metadata)
             poster_img = Image.open(poster_path)
-            self.file_path = base_image_path
+            self.file_path = base_image_path  # Base file path is what gets saved to metadata
             self.save_edited_image(poster_img)
             poster_img.close()
 
@@ -118,34 +134,33 @@ class FileHandler:
         except Exception as e:
             print(f"Error loading poster for editing: {e}")
             return False
-        
-    
 
-    def save_edited_image(self, edited_image: Image) -> bool:
+    def save_edited_image(self, edited_image: Image.Image) -> bool:
         """
         Save the edited image with metadata.
         Returns: True on success, False on failure
         """
         self.clear_edited_image()
 
-        os.makedirs(self.EDITED_IMAGE_PATH, exist_ok=True) # Verifies
+        os.makedirs(self.EDITED_IMAGE_PATH, exist_ok=True)  # Verifies
         dest_path = os.path.join(self.EDITED_IMAGE_PATH, "edited_image.png")
 
         try:
-            meta = PosterMetadata.create_metadata(self.file_path) # Sets image metadata
-            edited_image.save(dest_path, format="PNG", pnginfo=meta) # Saves
+            meta = PosterMetadata.create_metadata(self.file_path)  # Sets image metadata
+            edited_image.save(dest_path, format="PNG", pnginfo=meta)  # Saves
             return True
         except Exception as e:
             print(f"Error saving edited image: {e}")
             return False
 
-    def save_image_to_desktop(self) -> tuple[bool, str]:
+    def save_image_to_desktop(self) -> Tuple[bool, str]:
         """
         Save edited image to desktop.
         Returns: (success, message) tuple
         """
-        desktop_path = os.path.join(os.path.expanduser("~"), "Desktop") # Finds path to desktop
-        file_name = "Wild_West_Poster_" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".png" # Name for saved image
+        desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")  # Finds path to desktop
+        file_name = "Wild_West_Poster_" + datetime.datetime.now().strftime(
+            "%Y%m%d%H%M%S") + ".png"  # Name for saved image
         save_path = os.path.join(desktop_path, file_name)
         edited_image_files = glob.glob(os.path.join(self.EDITED_IMAGE_PATH, "edited_image.*"))
 
@@ -153,7 +168,7 @@ class FileHandler:
             return False, "No edited image to save. Please generate an image first."
 
         try:
-            shutil.copy(edited_image_files[0], save_path) # Saves image to desktop
+            shutil.copy(edited_image_files[0], save_path)  # Saves image to desktop
             return True, f"Image saved to Desktop as {file_name}!"
         except Exception as e:
             return False, f"Error saving image: {str(e)}"

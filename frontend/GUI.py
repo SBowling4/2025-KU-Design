@@ -9,6 +9,7 @@ class App(TKMT.ThemedTKinterFrame):
     # Initialize objects
     file_handler = None
     image_creator = None
+    ai_handler = None
 
     def __init__(self, theme, mode):
         super().__init__("Wild West Poster Generator", theme, mode)
@@ -20,6 +21,8 @@ class App(TKMT.ThemedTKinterFrame):
         self.frame_var = StringVar()
         self.filter_var = StringVar()
         self.text_color_var = StringVar()
+
+        self.ai_entry_var = StringVar()
 
         # Store images
         self.images = {}
@@ -44,6 +47,8 @@ class App(TKMT.ThemedTKinterFrame):
         self.set_generate_button()
         self.set_font_color_dropdown()
         self.set_current_image(edit=False)
+        self.set_ai_input()
+        self.set_ai_button()
 
         for child in self.root.winfo_children():
             # Sets all lables to be sticky to S
@@ -170,10 +175,22 @@ class App(TKMT.ThemedTKinterFrame):
         text_color_dropdown = self.OptionMenu(text_color_option_list, self.text_color_var)
         text_color_dropdown.grid(column=5, row=2)
 
-    def set_current_image(self, edit=False):
+    def set_current_image(self, edit=False, input_image: Image=None):
         """
         Display current image. edit=True shows edited image if exists.
         """
+        if input_image:
+            self.images['current_image'] = ImageTk.PhotoImage(input_image)
+
+            if hasattr(self, 'current_image_label'):
+                self.current_image_label.config(image=self.images['current_image'])
+                self.current_image_label.image = self.images['current_image']
+            else:
+                self.current_image_label = Label(self.root, image=self.images['current_image'])
+                self.current_image_label.grid(column=0, row=1, rowspan=6, columnspan=2)
+
+
+            return
         try:
             if edit:
                 img = resources.get_edited_image().convert('RGB').resize((500, 500))
@@ -191,6 +208,17 @@ class App(TKMT.ThemedTKinterFrame):
         else:
             self.current_image_label = Label(self.root, image=self.images['current_image'])
             self.current_image_label.grid(column=0, row=1, rowspan=6, columnspan=2)
+
+    def set_ai_input(self):
+        ai_entry_label = self.Label(text="AI Input")
+        ai_entry_label.grid(column=6, row=1)
+
+        ai_entry = self.Entry(textvariable=self.ai_entry_var)
+        ai_entry.grid(row=2, column=6)
+
+    def set_ai_button(self):
+        ai_button = self.Button(text="Generate With AI", command=lambda: self.generate_ai())
+        ai_button.grid(column=6, row=7)
 
     def upload_image(self):
         """Handle image upload with poster detection"""
@@ -297,6 +325,9 @@ class App(TKMT.ThemedTKinterFrame):
         else:
             messagebox.showerror("Error", "Failed to save edited image")
 
+    def generate_ai(self):
+        self.update_edited_image(self.ai_handler.edit_with_ai(self.get_ai_var()))
+
     def save_to_desktop(self):
         """Save the current edited image to desktop"""
         success, message = self.file_handler.save_image_to_desktop()
@@ -350,3 +381,10 @@ class App(TKMT.ThemedTKinterFrame):
             "filter": self.filter_var.get(),
             "text_color": self.text_color_var.get()
         }
+
+    def get_ai_var(self) -> str:
+        return self.ai_entry_var.get()
+
+
+def hi():
+    print("pushed")

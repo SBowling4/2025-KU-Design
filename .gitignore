@@ -3,3 +3,4 @@ resources/edited_image/*
 __pycache__/
 *.pyc
 *.pyo
+.env
