@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 from PIL import Image, ImageTk
 import TKinterModernThemes as TKMT
 from resources import resources
@@ -8,7 +8,6 @@ from resources import resources
 class App(TKMT.ThemedTKinterFrame):
     file_handler = None
     image_creator = None
-    messagebox = messagebox
 
     def __init__(self, theme, mode):
         super().__init__("Wild West Poster Generator", theme, mode)
@@ -26,6 +25,9 @@ class App(TKMT.ThemedTKinterFrame):
 
         # Build the UI
         self.set_frame_components()
+
+        # Start the UI state update loop
+        self._update_ui_state()
 
     def set_frame_components(self):
         self.set_title()
@@ -113,11 +115,11 @@ class App(TKMT.ThemedTKinterFrame):
             self.filter_buttons[key] = (border, btn)
 
     def set_save_button(self):
-        save_button = self.Button(text="Save Image", command=lambda: self.file_handler.save_image_to_desktop())
+        save_button = self.Button(text="Save Image", command=self.save_to_desktop)
         save_button.grid(column=4, row=7)
 
     def set_generate_button(self):
-        generate_button = self.Button(text="Generate Image", command=self.update_edited_image)
+        generate_button = self.Button(text="Generate Image", command=self.generate_poster)
         generate_button.grid(column=2, row=7)
 
     def set_font_color_dropdown(self):
@@ -140,6 +142,7 @@ class App(TKMT.ThemedTKinterFrame):
             else:
                 img = resources.get_current_image().convert('RGB').resize((500, 500))
         except FileNotFoundError:
+            # If the image doesn't exist, show temp image
             img = resources.temp_image
 
         self.images['current_image'] = ImageTk.PhotoImage(img)
@@ -151,65 +154,140 @@ class App(TKMT.ThemedTKinterFrame):
             self.current_image_label = Label(self.root, image=self.images['current_image'])
             self.current_image_label.grid(column=0, row=1, rowspan=6, columnspan=2)
 
-    def update_edited_image(self, upload=False):
-        """
-        Generate or update the edited image display.
-        """
-        if upload:
-            try:
-                edited_image = resources.get_edited_image().convert('RGB').resize((500, 500))
-            except FileNotFoundError:
-                edited_image = resources.temp_image
+    def upload_image(self):
+        """Handle image upload with poster detection"""
+        # Check if overwriting
+        if self.file_handler.has_image:
+            if not messagebox.askyesno(
+                    "Warning!",
+                    "You already have an image. Are you sure you want to overwrite it?"
+            ):
+                return
+            # Clear both current and edited images when starting fresh
+            self.file_handler.clear_current_image()
+            self.file_handler.clear_edited_image()
 
-            self.images['current_image'] = ImageTk.PhotoImage(edited_image)
-            self.set_current_image(edit=True)
+        # Get file from user
+        file_path = filedialog.askopenfilename(
+            parent=self.root,
+            title="Select an Image",
+            filetypes=[("Image files", "*.png *.jpg *.jpeg *.gif"), ("All files", "*.*")]
+        )
+
+        if not file_path:  # User cancelled
             return
 
+        # Check for poster metadata
+        base_image_path, base_exists = self.file_handler.check_for_poster_metadata(file_path)
+
+        # Handle poster detection
+        if base_image_path:
+            if not base_exists:
+                # Base image missing - warn user
+                messagebox.showwarning(
+                    "Base Image Missing",
+                    "This image appears to be a previously generated poster.\n\n"
+                    f"The original base image at:\n{base_image_path}\nwas not found.\n"
+                    "You can still continue, but the poster will start from this uploaded image."
+                )
+                # Treat as regular image
+                self._load_regular_image(file_path)
+            else:
+                # Base exists - ask if user wants to continue editing
+                if messagebox.askyesno(
+                        "Poster Detected",
+                        f"This image appears to be a previously generated poster.\n\n"
+                        f"Original base image:\n{base_image_path}\n\n"
+                        f"Do you want to continue editing this poster?"
+                ):
+                    # Load for editing
+                    if self.file_handler.load_poster_for_editing(file_path, base_image_path):
+                        self.set_current_image(edit=True)
+                    else:
+                        messagebox.showerror("Error", "Failed to load poster for editing")
+                else:
+                    # Use poster as new base image
+                    self._load_regular_image(file_path)
+        else:
+            # No metadata - regular image
+            self._load_regular_image(file_path)
+
+    def _load_regular_image(self, file_path: str):
+        """Load a regular image as base image"""
+        # Clear edited image from disk when loading new base
+        self.file_handler.clear_edited_image()
+
+        if self.file_handler.load_base_image(file_path):
+            # Show the new base image (not edited)
+            self.set_current_image(edit=False)
+        else:
+            messagebox.showerror("Error", "Failed to load image")
+
+    def update_edited_image(self, upload=False):
+        """
+        Update the edited image display (used for backward compatibility).
+        """
+        if upload:
+            self.set_current_image(edit=True)
+
+    def generate_poster(self):
+        """Generate the poster with current settings"""
         # Validate frame and filter selection
-        if not self.get_entries()['frame']:
-            frame_response = messagebox.askyesno("No Frame", "No frame selected, would you like to continue?")
-            if frame_response:
-                self.get_entries()['frame'] = None
-            else:
-                return
-        if not self.get_entries()['filter']:
-            filter_response = messagebox.askyesno("No Filter", "No filter selected, would you like to continue?")
-            if filter_response:
-                self.get_entries()['filter'] = None
-            else:
+        entries = self.get_entries()
+
+        if not entries['frame']:
+            if not messagebox.askyesno("No Frame", "No frame selected, would you like to continue?"):
                 return
 
+        if not entries['filter']:
+            if not messagebox.askyesno("No Filter", "No filter selected, would you like to continue?"):
+                return
+
+        # Generate image
         try:
             edited_image = self.image_creator.create_image()
         except FileNotFoundError:
-            messagebox.showerror("Error", "No image found")
-            edited_image = resources.temp_image
+            messagebox.showerror("Error", "No base image found. Please upload an image first.")
+            return
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to generate poster: {str(e)}")
+            return
 
-        self.file_handler.save_edited_image(edited_image)
-        self.images['current_image'] = ImageTk.PhotoImage(edited_image)
-        self.set_current_image(edit=True)
-
-    def upload_image(self):
-        """
-        Upload image and handle poster detection.
-        """
-        self.file_handler.get_file_from_dialog()
-        if getattr(self.file_handler, 'response_2', False):
-            # Poster detected, show edited image
-            self.update_edited_image(upload=True)
+        # Save and display
+        if self.file_handler.save_edited_image(edited_image):
+            self.set_current_image(edit=True)
         else:
-            # Otherwise, show base image
-            self.set_current_image(edit=False)
+            messagebox.showerror("Error", "Failed to save edited image")
+
+    def save_to_desktop(self):
+        """Save the current edited image to desktop"""
+        success, message = self.file_handler.save_image_to_desktop()
+
+        if success:
+            messagebox.showinfo("Success", message)
+        else:
+            messagebox.showerror("Error", message)
 
     def update_frame(self, frame):
         self.frame_var.set(frame)
-        for key, (border, _) in self.frame_buttons.items():
-            border.config(background="blue" if key == frame else "gray")
 
     def update_filter(self, fil):
         self.filter_var.set(fil)
+
+    def _update_ui_state(self):
+        """Periodically update UI elements to reflect current state"""
+        # Update frame borders
+        current_frame = self.frame_var.get()
+        for key, (border, _) in self.frame_buttons.items():
+            border.config(background="blue" if key == current_frame else "gray")
+
+        # Update filter borders
+        current_filter = self.filter_var.get()
         for key, (border, _) in self.filter_buttons.items():
-            border.config(background="blue" if key == fil else "gray")
+            border.config(background="blue" if key == current_filter else "gray")
+
+        # Schedule next update (every 100ms)
+        self.root.after(100, self._update_ui_state)
 
     def get_entries(self) -> dict[str, str]:
         return {

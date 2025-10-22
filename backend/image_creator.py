@@ -4,7 +4,9 @@ from resources import resources
 
 class ImageCreator:
     app = None
-    entries = []
+
+    def __init__(self):
+        self.entries = []
 
     def create_image(self):
         self.entries = self.app.get_entries()
@@ -15,6 +17,14 @@ class ImageCreator:
         color = self.entries["text_color"]
         frame = self.entries["frame"]
         fil = self.entries["filter"]
+
+        if len(name) >= 50:
+            self.app.messagebox.showerror("Error", "Name too long")
+            return resources.get_current_image()
+
+        if len(location) >= 50:
+            self.app.messagebox.showerror("Error", "Location too long")
+            return resources.get_current_image()
 
         # Select filter image and overlay color
         if fil == "filter_1":

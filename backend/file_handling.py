@@ -1,141 +1,157 @@
 import glob
 import os
 import shutil
-from tkinter import filedialog, messagebox
 from PIL import Image, PngImagePlugin
 import datetime
+import json
+
+
+class PosterMetadata:
+    """Handle poster metadata operations"""
+
+    @staticmethod
+    def extract_base_image_path(file_path: str) -> tuple[str | None, bool]:
+        """
+        Extract base image path from PNG metadata if it exists.
+        Returns: (base_image_path, base_exists)
+        """
+        if not file_path.lower().endswith(".png"):
+            return None, False
+
+        try:
+            img = Image.open(file_path)
+            base_image_path = img.info.get("BaseImagePath")
+            img.close()
+
+            if base_image_path:
+                base_exists = os.path.exists(base_image_path)
+                return base_image_path, base_exists
+            return None, False
+        except Exception as e:
+            print(f"Metadata check failed: {e}")
+            return None, False
+
+    @staticmethod
+    def create_metadata(base_image_path: str) -> PngImagePlugin.PngInfo:
+        """Create PNG metadata with base image path"""
+        meta = PngImagePlugin.PngInfo()
+        if base_image_path:
+            meta.add_text("BaseImagePath", base_image_path)
+        return meta
 
 
 class FileHandler:
     def __init__(self):
         self.file_path = ""
         self.has_image = False
-        self.response_2 = None
         self.app = None
 
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     CURRENT_IMAGE_PATH = os.path.join(BASE_DIR, "resources", "current_image")
     EDITED_IMAGE_PATH = os.path.join(BASE_DIR, "resources", "edited_image")
 
-    def clear_images(self):
+    def clear_current_image(self):
+        """Clear all current images"""
         for f in glob.glob(os.path.join(self.CURRENT_IMAGE_PATH, "current_image.*")):
-            os.remove(f)
-        for f in glob.glob(os.path.join(self.EDITED_IMAGE_PATH, "edited_image.png")):
-            os.remove(f)
-
-    def get_file_from_dialog(self):
-        if self.has_image:
-            response = messagebox.askyesno(
-                title="Warning!",
-                message="You already have an image. Are you sure you want to overwrite it?"
-            )
-            if not response:
-                return
-
-        self.file_path = filedialog.askopenfilename(
-            parent=self.app.root,
-            title="Select an Image",
-            filetypes=[("Image files", "*.png *.jpg *.jpeg *.gif"), ("All files", "*.*")]
-        ) #TODO: when cancelled fix
-        if not self.file_path:  # User cancelled
-            return
-
-        # --- Check for embedded metadata if it's a PNG ---
-        base_image_path = None
-        image_found_at_base = True
-        if self.file_path.lower().endswith(".png"):
             try:
-                img = Image.open(self.file_path)
-                base_image_path = img.info.get("BaseImagePath")
-
-                if not os.path.exists(base_image_path):
-                    messagebox.showwarning(
-                        "Base Image Missing",
-
-                        "This image appears to be a previously generated poster.\n\n"
-                        f"The original base image at:\n{base_image_path}\nwas not found.\n"
-                        "You can still continue, but the poster will start from this uploaded image."
-                    )
-                    image_found_at_base = False
-
-                img.close()
+                os.remove(f)
             except Exception as e:
-                print(f"Metadata check failed: {e}")
+                print(f"Error removing current image: {e}")
 
+    def clear_edited_image(self):
+        """Clear all edited images"""
+        for f in glob.glob(os.path.join(self.EDITED_IMAGE_PATH, "edited_image.*")):
+            try:
+                os.remove(f)
+            except Exception as e:
+                print(f"Error removing edited image: {e}")
 
-        # --- If metadata found, ask user what to do ---
-        if base_image_path and image_found_at_base:
-            response_2 = messagebox.askyesno(
-                title="Poster Detected",
-                message=f"This image appears to be a previously generated poster.\n\n"
-                        f"Original base image:\n{base_image_path}\n\n"
-                        f"Do you want to continue editing this poster?"
-            )
-            if response_2:
-                os.makedirs(self.CURRENT_IMAGE_PATH, exist_ok=True)
-                dest_path = os.path.join(self.CURRENT_IMAGE_PATH, "current_image.png")
-                try:
-                    for f in glob.glob(os.path.join(self.CURRENT_IMAGE_PATH, "current_image.*")):
-                        os.remove(f)
-                    shutil.copy(base_image_path, dest_path)
-                except Exception as e:
-                    messagebox.showerror("Error", f"Error copying file: {e}")
-                    return
-                self.has_image = True
-                self.response_2 = True
-                self.save_edited_image(Image.open(self.file_path))
-                self.app.update_edited_image(upload=True)
-                return
-            else:
-                self.response_2 = False
+    def check_for_poster_metadata(self, file_path: str) -> tuple[str | None, bool]:
+        """
+        Check if file is a poster with metadata.
+        Returns: (base_image_path, base_exists)
+        """
+        return PosterMetadata.extract_base_image_path(file_path)
 
-        # --- Regular base image load ---
+    def load_base_image(self, file_path: str) -> bool:
+        """
+        Load a new base image into current_image directory.
+        Returns: True on success, False on failure
+        """
         os.makedirs(self.CURRENT_IMAGE_PATH, exist_ok=True)
-        _, ext = os.path.splitext(self.file_path)
+        _, ext = os.path.splitext(file_path)
         dest_path = os.path.join(self.CURRENT_IMAGE_PATH, f"current_image{ext}")
 
         try:
-            for f in glob.glob(os.path.join(self.CURRENT_IMAGE_PATH, "current_image.*")):
-                os.remove(f)
-            shutil.copy(self.file_path, dest_path)
+            shutil.copy(file_path, dest_path)
+            self.file_path = file_path
+            self.has_image = True
+            return True
         except Exception as e:
-            messagebox.showerror("Error", f"Error copying file: {e}")
-            return
+            print(f"Error loading base image: {e}")
+            return False
 
-        self.has_image = True
+    def load_poster_for_editing(self, poster_path: str, base_image_path: str) -> bool:
+        """
+        Load a poster and its base image for continued editing.
+        Returns: True on success, False on failure
+        """
+        os.makedirs(self.CURRENT_IMAGE_PATH, exist_ok=True)
+        dest_path = os.path.join(self.CURRENT_IMAGE_PATH, "current_image.png")
 
-    def save_edited_image(self, edited_image: Image):
+        try:
+            # Copy base image to current_image
+            shutil.copy(base_image_path, dest_path)
+
+            # Save the poster as edited_image
+            poster_img = Image.open(poster_path)
+            self.file_path = base_image_path
+            self.save_edited_image(poster_img)
+            poster_img.close()
+
+            self.has_image = True
+            return True
+        except Exception as e:
+            print(f"Error loading poster for editing: {e}")
+            return False
+
+    def save_edited_image(self, edited_image: Image) -> bool:
+        """
+        Save the edited image with metadata.
+        Returns: True on success, False on failure
+        """
+        self.clear_edited_image()
+
         os.makedirs(self.EDITED_IMAGE_PATH, exist_ok=True)
         dest_path = os.path.join(self.EDITED_IMAGE_PATH, "edited_image.png")
-        try:
-            for f in glob.glob(os.path.join(self.EDITED_IMAGE_PATH, "edited_image.*")):
-                os.remove(f)
-        except Exception as e:
-            messagebox.showerror("Error", f"Error deleting edited image: {str(e)}")
 
         try:
-            meta = PngImagePlugin.PngInfo()
-            if self.file_path:
-                meta.add_text("BaseImagePath", self.file_path)
+            meta = PosterMetadata.create_metadata(self.file_path)
             edited_image.save(dest_path, format="PNG", pnginfo=meta)
+            return True
         except Exception as e:
-            messagebox.showerror("Error", f"Error saving edited image: {str(e)}")
+            print(f"Error saving edited image: {e}")
+            return False
 
-    def save_image_to_desktop(self):
+    def save_image_to_desktop(self) -> tuple[bool, str]:
+        """
+        Save edited image to desktop.
+        Returns: (success, message) tuple
+        """
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
         file_name = "Wild_West_Poster_" + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".png"
         save_path = os.path.join(desktop_path, file_name)
         edited_image_files = glob.glob(os.path.join(self.EDITED_IMAGE_PATH, "edited_image.*"))
 
         if not edited_image_files:
-            messagebox.showerror("Error", "No edited image to save. Please generate an image first.")
-            return
+            return False, "No edited image to save. Please generate an image first."
 
         try:
             shutil.copy(edited_image_files[0], save_path)
-            messagebox.showinfo("Success", f"Image saved to Desktop!")
+            return True, f"Image saved to Desktop as {file_name}!"
         except Exception as e:
-            messagebox.showerror("Error", f"Error saving image: {str(e)}")
+            return False, f"Error saving image: {str(e)}"
 
-    def get_file_path(self):
+    def get_file_path(self) -> str:
+        """Get the current base image file path"""
         return self.file_path
