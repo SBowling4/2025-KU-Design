@@ -6,6 +6,7 @@ from resources import resources
 
 
 class App(TKMT.ThemedTKinterFrame):
+    # Initialize objects
     file_handler = None
     image_creator = None
 
@@ -30,6 +31,10 @@ class App(TKMT.ThemedTKinterFrame):
         self._update_ui_state()
 
     def set_frame_components(self):
+        '''
+        Sets all the componentes for the GUI
+        :return:
+        '''
         self.set_title()
         self.set_inputs()
         self.set_font_dropdown()
@@ -41,14 +46,23 @@ class App(TKMT.ThemedTKinterFrame):
         self.set_current_image(edit=False)
 
         for child in self.root.winfo_children():
+            # Sets all lables to be sticky to S
             if "label" in child.winfo_name():
                 child.grid_configure(sticky="s")
 
     def set_title(self):
+        '''
+        Sets the title of the GUI
+        :return:
+        '''
         title_label = self.Label("Wild West Poster Generator")
         title_label.grid(column=1, row=0)
 
     def set_inputs(self):
+        '''
+        Sets the inputs for the GUI and labels
+        :return:
+        '''
         upload_button = self.Button(text="Upload Image", command=self.upload_image)
         upload_button.grid(column=2, row=0)
 
@@ -63,6 +77,10 @@ class App(TKMT.ThemedTKinterFrame):
         loc_entry.grid(column=3, row=2)
 
     def set_font_dropdown(self):
+        '''
+        Sets the font dropdown
+        :return:
+        '''
         font_label = self.Label("Font")
         font_label.grid(column=4, row=1)
         font_option_list = ['Breaking Road', 'Perfecto', 'Priestacy']
@@ -71,6 +89,10 @@ class App(TKMT.ThemedTKinterFrame):
         font_entry.grid(column=4, row=2)
 
     def set_frame_buttons(self):
+        '''
+        Sets the frame buttons
+        :return:
+        '''
         frame_label = self.Label("Frames")
         frame_label.grid(column=2, row=3)
 
@@ -93,6 +115,10 @@ class App(TKMT.ThemedTKinterFrame):
             self.frame_buttons[key] = (border, btn)
 
     def set_filter_buttons(self):
+        '''
+        Sets the filter buttons
+        :return:
+        '''
         filter_label = self.Label("Filters")
         filter_label.grid(column=4, row=3)
 
@@ -115,14 +141,26 @@ class App(TKMT.ThemedTKinterFrame):
             self.filter_buttons[key] = (border, btn)
 
     def set_save_button(self):
+        '''
+        Sets the save button
+        :return:
+        '''
         save_button = self.Button(text="Save Image", command=self.save_to_desktop)
         save_button.grid(column=4, row=7)
 
     def set_generate_button(self):
+        '''
+        Sets the generate button
+        :return:
+        '''
         generate_button = self.Button(text="Generate Image", command=self.generate_poster)
         generate_button.grid(column=2, row=7)
 
     def set_font_color_dropdown(self):
+        '''
+        Sets the font color dropdown
+        :return:
+        '''
         font_color_label = self.Label("Font Color")
         font_color_label.grid(column=5, row=1)
 
@@ -269,9 +307,19 @@ class App(TKMT.ThemedTKinterFrame):
             messagebox.showerror("Error", message)
 
     def update_frame(self, frame):
+        '''
+        Sets the frame inside of the tkinter varible
+        :param frame: the frame to set
+        :return:
+        '''
         self.frame_var.set(frame)
 
     def update_filter(self, fil):
+        '''
+        Sets the filter inside of the tkinter varible
+        :param fil: the filter to set
+        :return:
+        '''
         self.filter_var.set(fil)
 
     def _update_ui_state(self):
@@ -290,6 +338,10 @@ class App(TKMT.ThemedTKinterFrame):
         self.root.after(100, self._update_ui_state)
 
     def get_entries(self) -> dict[str, str]:
+        '''
+        Returns the tkinter variables for image generation in the form of a dictionary
+        :return: dict[str, str], for example: ["name", "Sam Bowling"]
+        '''
         return {
             "name": self.name_var.get(),
             "location": self.loc_var.get(),

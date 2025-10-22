@@ -9,8 +9,13 @@ class ImageCreator:
         self.entries = []
 
     def create_image(self):
+        '''
+        Creates the image based on the entries from the GUI
+        :return: final image with frame, filter, name and location
+        '''
         self.entries = self.app.get_entries()
 
+        # All entries
         name = self.entries["name"]
         location = self.entries["location"]
         font = self.entries["font"]
@@ -18,6 +23,7 @@ class ImageCreator:
         frame = self.entries["frame"]
         fil = self.entries["filter"]
 
+        # Caps the length of name and location to a specific length
         if len(name) >= 50:
             self.app.messagebox.showerror("Error", "Name too long")
             return resources.get_current_image()
@@ -77,16 +83,17 @@ class ImageCreator:
         current_image = resources.get_current_image().convert("RGBA")
 
         # Resize frame and filter
-
         if frame_image:
             frame_image = frame_image.resize(current_image.size).convert("RGBA")
 
         if filter_image:
             filter_image = filter_image.resize(current_image.size).convert("RGBA")
 
+        # Set up next level of image
         current_image_frame = current_image
 
-        if  frame_image:
+        # If there is a frame, apply it
+        if frame_image:
             current_image_frame = Image.alpha_composite(current_image, frame_image)
 
         # Draw text
@@ -97,11 +104,11 @@ class ImageCreator:
         # Apply filter overlay
         final_image = current_image_frame
 
+        #If we have a filter, apply it
         if filter_image:
             final_image = Image.alpha_composite(current_image_frame, filter_image)
             brown_overlay = Image.new("RGBA", final_image.size, filter_color)
             final_image = Image.blend(final_image, brown_overlay, 0.4)
-
 
 
         return final_image

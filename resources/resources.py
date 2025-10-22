@@ -2,9 +2,10 @@ import glob
 from PIL import Image, ImageFont
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-FOLDER_PATH = os.path.join(BASE_DIR, "resources")
+BASE_DIR = os.path.dirname(os.path.dirname(__file__)) # Project directory
+FOLDER_PATH = os.path.join(BASE_DIR, "resources") # Resource directory
 
+# Directories for all folders in resources
 FRAMES_DIR = os.path.join(FOLDER_PATH, "frames")
 BACKGROUND_DIR = os.path.join(FOLDER_PATH, "filters")
 CURRENT_IMAGE_DIR = os.path.join(FOLDER_PATH, "current_image")
@@ -37,15 +38,23 @@ perfecto = ImageFont.truetype(os.path.join(FONTS_DIR, "perfecto.ttf"), 30)
 priestacy = ImageFont.truetype(os.path.join(FONTS_DIR, "priestacy.otf"), 30)
 
 
-def get_current_image():
-    current_image_files = glob.glob(os.path.join(CURRENT_IMAGE_DIR, "current_image.*"))
+def get_current_image() -> Image:
+    '''
+    Gets the current image
+    :return: A PIL Image object of the current image
+    '''
+    current_image_files = glob.glob(os.path.join(CURRENT_IMAGE_DIR, "current_image.*")) # Creates a list of files in current_image
     if not current_image_files:
         raise FileNotFoundError("No current image found")
-    return Image.open(current_image_files[0]).resize((500, 500)).convert('RGB')
+    return Image.open(current_image_files[0]).resize((500, 500)).convert('RGB') # Returns file at index 0 (this is fine because there will never be more than one)
 
 
-def get_edited_image():
-    edited_image_files = glob.glob(os.path.join(EDITED_IMAGE_DIR, "edited_image.*"))
+def get_edited_image() -> Image:
+    '''
+    Gets the edited image
+    :return:  PIL Image object of the edited image
+    '''
+    edited_image_files = glob.glob(os.path.join(EDITED_IMAGE_DIR, "edited_image.*")) # Creates a list of files in edited_image
     if not edited_image_files:
         raise FileNotFoundError("No edited image found")
-    return Image.open(edited_image_files[0])
+    return Image.open(edited_image_files[0]) # Returns the file at index 0 (this is fine because there will never be more than one)
