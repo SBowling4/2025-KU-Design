@@ -1,6 +1,11 @@
 # Wild West Poster Generator
 
-**Team:** CTEC CS  
+**Team:** CTEC CS 
+
+- [Sam Bowling](https://github.com/SBowling4)
+- [Zachary Thomas](https://github.com/Thomazac000)
+- [Wyatt Lux](https://github.com/JohnProgramming1)
+
 **First Place**
 
 A Python desktop application that transforms ordinary photos into authentic Wild West wanted posters with AI-powered editing capabilities.
