@@ -75,7 +75,7 @@ wild-west-poster-generator/
 
 ## Credits
 
-**Developed by:** Sam Bowling (@SBowling4), Zachary Thomas (@thomazac000), and Wyatt Lux (@JohnProgramming14)
+**Developed by:** Sam Bowling, Zachary Thomas, and Wyatt Lux
 **AI Model:** Google Gemini 2.5 Flash  
 **API Service:** OpenRouter  
 
